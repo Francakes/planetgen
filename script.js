@@ -48,30 +48,24 @@ let universeData = {
     solarSystem: [],
     selectedPlanet: null,
     systemOuterEdge: null,
-    // Additional properties and methods can be added as needed
 };
 
-// Function to export universeData as a base64 string
 function exportUniverseData() {
     const dataString = JSON.stringify(universeData);
-    const base64Data = btoa(dataString); // Encode to base64
+    const base64Data = btoa(dataString);
     console.log('Exported Data:', base64Data);
-    // Example: Copy to clipboard or display in a user interface
     navigator.clipboard.writeText(base64Data).then(() => {
         alert('System data exported and copied to clipboard.');
     });
 }
 
-// Function to import universeData from a base64 string
 function importUniverseData(base64Data) {
     try {
-        const dataString = atob(base64Data); // Decode from base64
+        const dataString = atob(base64Data); 
         const dataObject = JSON.parse(dataString);
-        // Validate or sanitize dataObject as necessary
-        universeData = dataObject; // Update universeData
+        universeData = dataObject; 
         console.log('Imported Data:', universeData);
-        // Trigger any necessary updates or rerendering here
-        updateScene(); // Assuming updateScene() will use the updated universeData
+        updateScene(); 
     } catch (error) {
         console.error('Failed to import data:', error);
         alert('Invalid data format. Please ensure you are using a valid exported string.');
@@ -135,11 +129,6 @@ function filterVitalDataForExport(universeData) {
         }))
     };
     return filteredData;
-}
-
-function encodeDataToBase64(dataObject) {
-    const jsonString = JSON.stringify(dataObject);
-    return btoa(jsonString); // Use btoa for base64 encoding
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -234,10 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const inputStr = decodeURIComponent(escape(window.atob(document.getElementById('base64Input').value)));
             universeData = JSON.parse(inputStr);
-            // Here you would add any necessary calls to update the UI based on the imported data
             alert('System data imported successfully!');
-            // After importing, you might need to regenerate any dependent properties or UI elements
-            // For example, if you have functions to update the visuals based on universeData
             updateScene();
         } catch (e) {
             alert('Failed to import data. Please ensure the base64 string is correct.');
@@ -258,7 +244,6 @@ async function updateScene() {
     generateAtmospheres();
     zoomToStar();
 }
-
 
 function zoomToStar(starSize){
 currentTargetIndex = 0; // Index of the star
@@ -284,27 +269,27 @@ function initializeThreeJSEnvironment(canvasId) {
     canvas = document.getElementById(canvasId);
     scene = new THREE.Scene();
 
-    const starFieldTexture = createStarFieldTexture(); // Assuming createStarFieldTexture is defined
+    const starFieldTexture = createStarFieldTexture(); 
     scene.background = starFieldTexture;
 
     camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.01, 1000000);
-    camera.position.set(0, 0, 500); // You might want to experiment with these values
+    camera.position.set(0, 0, 500); 
     camera.castShadow = true;
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // or other shadow types as needed
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
 
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
     
     bloomPass = new UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight), // resolution
+        new THREE.Vector2(window.innerWidth, window.innerHeight), 
 
-        bloomStrength, // strength
-        bloomRadius, // radius
-        bloomThreshold, // threshold
+        bloomStrength,
+        bloomRadius,
+        bloomThreshold,
     );
     composer.addPass(bloomPass);
     
@@ -332,7 +317,6 @@ function updateDesiredTargetPosition(index) {
 }
 
 function createPlanet(planetData, index) {
-    // Access parent star's habitable zone directly from universeData
     // const habitableZone = universeData.parentStar.habitableZone;
     const planetGeometry = new THREE.SphereGeometry(planetData.radius, 32, 32);
     const starSize = universeData.parentStar.size;
@@ -401,7 +385,6 @@ else if (planetData.type === 'Ocean World') {
 
 }
 else {
-    // For other planet types, use the standard material
     material = new THREE.MeshStandardMaterial({
         map: noiseTexture,
         color: getColorForPlanetType(planetData.type),
@@ -432,22 +415,22 @@ else {
  if (planetData.type === 'Ocean World' || planetData.type === 'Terrestrial') {
     const cloudGeometry = new THREE.SphereGeometry(planetData.radius * 1.01, 32, 32);
     const cloudMaterial = new THREE.MeshPhongMaterial({
-        map: new THREE.TextureLoader().load('./texture/water_clouds_d.png'), // Make sure this is the correct path
+        map: new THREE.TextureLoader().load('./texture/water_clouds_d.png'),
         alphaMap: new THREE.TextureLoader().load('./texture/water_clouds_d.png'),
         transparent: true,
         depthWrite: false,
         opacity: 0.6,
     });
-    cloudMaterial.blending = THREE.AdditiveBlending; // Example alternative blending mode
+    cloudMaterial.blending = THREE.AdditiveBlending; 
     const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
     cloudGeometry.rotateZ(Math.PI / 2);
-    cloudGeometry.rotateX = axialTiltRadians; // Tilting the planet around its X-axis
+    cloudGeometry.rotateX = axialTiltRadians; 
     planetData.cloudMesh = cloudMesh;
-    planetMesh.add(cloudMesh); // Assuming planetMesh is your planet
+    planetMesh.add(cloudMesh);
 
 }
     scene.add(planetMesh);
-    celestialObjects[index + 1] = planetMesh; // We use index + 1 because index 0 is reserved for the star
+    celestialObjects[index + 1] = planetMesh; //index + 1 because index 0 is reserved for the star
     planetData.geologicalData = geologicalData;
 
 }
@@ -469,9 +452,8 @@ async function generatePlanets() {
     for (let i = 0; i < universeData.solarSystem.length; i++) {
         const planetData = universeData.solarSystem[i];
         createPlanet(planetData, i);
-        // Generate and store composition data for each planet
         const composition = await determinePlanetaryComposition(planetData.radius, planetData.orbitRadius, universeData.parentStar.size, universeData.parentStar.mass);
-        planetData.composition = composition; // Store the composition data within the planet's data structure
+        planetData.composition = composition;
     }
 }
 
@@ -497,11 +479,9 @@ function generateRings() {
 }
 
 function updateSurfaceTemperatures() {
-    // Loop through each planet in the solar system
     universeData.solarSystem.forEach((planet) => {
         // Ensure all necessary data is present
         if (planet.orbitRadius && planet.atmosphere && universeData.parentStar.luminosity) {
-            // Calculate the surface temperature for the current planet
             const surfaceTemperature = calculateSurfaceTemperature(
                 universeData.parentStar.luminosity,
                 planet.orbitRadius,
@@ -510,46 +490,37 @@ function updateSurfaceTemperatures() {
                 planet.size,
             );
 
-            // Update the planet object with the calculated surface temperature
             planet.surfaceTemperature = surfaceTemperature;
         }
     });
 }
 
 function setupLighting() {
-    // Access star data directly from universeData
     const starData = universeData.parentStar;
     let { color, intensity } = calculateStarColorAndIntensity(starData.type, starData.luminosity);
 
-    // Ensure a minimum intensity for visibility
-    const minIntensity = 0.5; // Adjust as needed for minimum visibility
+    const minIntensity = 0.5;
     const effectiveIntensity = Math.max(intensity, minIntensity);
     color = new THREE.Color(color);
-    color = desaturateColor(color.getStyle(), 0.6); // Example: 0.5 as the desaturation factor
+    color = desaturateColor(color.getStyle(), 0.6); 
 
     if (starLight) {
-        scene.remove(starLight); // Remove existing light if present
+        scene.remove(starLight);
     }
 
-    // Create a new directional light
     starLight = new THREE.PointLight(color, effectiveIntensity);
-    starLight.position.set(0, 0, 0); // Position it to shine towards the scene
-
-    // Enable shadow casting for the light
+    starLight.position.set(0, 0, 0); 
     starLight.castShadow = true;
 
-    // Configure shadow properties
-    starLight.shadow.mapSize.width = 2048; // Increase for better shadow resolution
+    starLight.shadow.mapSize.width = 2048; 
     starLight.shadow.mapSize.height = 2048;
-    starLight.shadow.camera.near = 0.1; // Adjust based on your scene's scale
+    starLight.shadow.camera.near = 0.1; 
     starLight.shadow.camera.far = 10000;
     starLight.shadow.radius = 4;
 
-    // Add the light to the scene
     scene.add(starLight);
     adjustLightPosition();
 
-    // Update ambient light as well
     if (ambientLight) {
         ambientLight.color.set(color);
         ambientLight.intensity = intensity / 10;
@@ -558,7 +529,6 @@ function setupLighting() {
         scene.add(ambientLight);
     }
 
-    // Now, addStarToScene should also utilize universeData instead of requiring starData as a parameter
     addStarToScene();
 }
 
@@ -569,13 +539,10 @@ function setupOrbitControls() {
     controls.dampingFactor = 0.25;
     controls.screenSpacePanning = false;
     controls.enableZoom = true;
-    // Removed min/max polar angle to allow full vertical rotation
-    // Removed min/max distance to allow any distance
-     // Event listeners to detect manual control
 }
 
 function startAnimationLoop() {
-    let followSpeed = 0.05; // Adjust for smoother or faster following
+    let followSpeed = 0.05; 
 
     function animate() {
         requestAnimationFrame(animate);
@@ -587,7 +554,7 @@ function startAnimationLoop() {
         updateDesiredTargetPosition(currentTargetIndex);
 
        if (isZooming) {
-        camera.position.lerp(zoomTargetPosition, 0.05); // Adjust the 0.05 value for speed
+        camera.position.lerp(zoomTargetPosition, 0.05);
         const lookAtPosition = new THREE.Vector3().lerpVectors(camera.position, zoomTargetLookAt, 0.05);
         camera.lookAt(lookAtPosition);
 
@@ -597,12 +564,6 @@ function startAnimationLoop() {
             camera.lookAt(zoomTargetLookAt);
             }
         }
-       // updateBloomEffect(camera, currentTargetIndex);
- //       const planetMesh = scene.getObjectByName(`planet${index}`);
-   //     if (planetMesh && planetMesh.material && planetMesh.material.isShaderMaterial) {
-        // Update the uniform with the current world position of the planet
-   //         planetMesh.material.uniforms.objectWorldPosition.value.copy(planetMesh.position);
-  //      }
         controls.update();
         composer.render();
     }
@@ -615,16 +576,13 @@ function animatePlanets() {
     universeData.solarSystem.forEach((planetData, index) => {
         const planetMesh = scene.getObjectByName(`planet${index}`);
         if (planetMesh) {
-            // Rotate the planet around its axis
-            planetMesh.rotation.y += planetData.rotationSpeed * 20; // Adjust the speed as necessary
+            planetMesh.rotation.y += planetData.rotationSpeed * 20;
 
-            // Update the planet's orbital position
             const orbitRadius = planetData.orbitRadius * AU_TO_SCENE_SCALE;
             const theta = (Date.now() * planetData.orbitalSpeed) % (Math.PI * 2);
             planetMesh.position.x = Math.cos(theta) * orbitRadius;
             planetMesh.position.z = Math.sin(theta) * orbitRadius;
 
-            // If the planet mesh has a ShaderMaterial and a uniform for world position, update it
             if (planetMesh.material && planetMesh.material.isShaderMaterial && planetMesh.material.uniforms.objectWorldPosition && planetMesh.material.uniforms.rotationMatrix) {
                 planetMesh.material.uniforms.objectWorldPosition.value.copy(planetMesh.position);
                 planetMesh.material.uniforms.rotationMatrix.value = new THREE.Matrix4().makeRotationFromEuler(planetMesh.rotation);
@@ -634,7 +592,6 @@ function animatePlanets() {
 
             }
 
-            // Update the cloud mesh position if it has one
             if (planetData.cloudMesh && planetData.cloudMesh.material && planetData.cloudMesh.material.isShaderMaterial && planetData.cloudMesh.material.uniforms.objectWorldPosition) {
                 planetData.cloudMesh.material.uniforms.objectWorldPosition.value.copy(planetMesh.position);
             }
@@ -646,19 +603,10 @@ function animateClouds() {
     universeData.solarSystem.forEach((planetData, index) => {
         const planetMesh = scene.getObjectByName(`planet${index}`);
         if (planetMesh && planetData.cloudMesh) {
-            // Assuming each planetData has a cloudMesh reference
             const cloudMesh = planetData.cloudMesh;
-            // Adjust the rotation speed as needed
-            cloudMesh.rotation.y += -0.002; // Example speed for cloud rotation
+            cloudMesh.rotation.y += -0.002;
         }
     });
-}
-
-function toggleCloudVisibility(planetIndex, isVisible) {
-    const planetData = universeData.solarSystem[planetIndex];
-    if (planetData && planetData.cloudMesh) {
-        planetData.cloudMesh.visible = isVisible;
-    }
 }
 
 function animateMoons() {
@@ -670,7 +618,6 @@ function animateMoons() {
                     const orbitData = moon.userData.orbit;
                     const angle = (Date.now() * orbitData.speed * 4 + orbitData.phase) % (Math.PI * 2);
 
-                    // Update position based on stored orbital parameters
                     moon.position.set(
                         Math.cos(angle) * orbitData.radius,
                         Math.sin(angle) * Math.sin(orbitData.inclination) * orbitData.radius,
@@ -682,102 +629,59 @@ function animateMoons() {
     });
 }
 
-function updateBloomEffect(camera, currentTargetIndex) {
-    // Example calculation - you'll need to replace this with actual logic
-    const target = currentTargetIndex;
-    const distance = camera.position.distanceTo(currentTargetIndex);
-    
-    // Placeholder logic for adjusting bloom based on distance or target type
-    let newBloomStrength, newBloomRadius, newBloomThreshold;
-    if (distance < 50) { // Assuming distance units are consistent with your scene
-        newBloomStrength = 0.0; // Stronger bloom for closer targets
-        newBloomRadius = 0.5;
-        newBloomThreshold = 0.85;
-    } else {
-        newBloomStrength = 0.5; // Weaker bloom for distant targets
-        newBloomRadius = 0.1;
-        newBloomThreshold = 0.95;
-    }
-
-    // Apply the new bloom parameters
-    bloomStrength = newBloomStrength;
-    bloomRadius = newBloomRadius;
-    bloomThreshold = newBloomThreshold;
-
-    // You might need to directly update your bloom effect object here,
-    // depending on how it's implemented.
-}
-
 function visualizeOrbits() {
     universeData.solarSystem.forEach((planetData, index) => {
         const orbitRadius = planetData.orbitRadius * AU_TO_SCENE_SCALE;
-        // Create a geometry for the orbit. Since we're using a LineLoop, no need to remove the center vertex.
         const orbitGeometry = new THREE.RingGeometry(orbitRadius - 0.1, orbitRadius, 64);
         const orbitMaterial = new THREE.LineBasicMaterial({ color: 0xDED38D, transparent: true, opacity: 0.05 });
         
-        // Create a LineLoop with the geometry and material
         const orbitPath = new THREE.LineLoop(orbitGeometry, orbitMaterial);
-        orbitPath.rotation.x = Math.PI / 2; // Orient the orbit horizontally
-        orbitPath.name = `orbitPath${index}`; // Assign a name to the orbit path for cleanup identification
+        orbitPath.rotation.x = Math.PI / 2; 
+        orbitPath.name = `orbitPath${index}`; 
         scene.add(orbitPath);
     });
 }
 
 function displayElementalComposition(planetIndex) {
-    // Check for valid planet index
     if (planetIndex < 0 || planetIndex >= universeData.solarSystem.length) return;
 
     const habitablePlanetDiv = document.getElementById('habitablePlanetDetails');
     const planet = universeData.solarSystem[planetIndex];
-
-    // Header for Elemental Composition section
     let headerContent = `<div class="element-details-header">Elemental Composition for ${planet.name || `Planet ${planetIndex + 1}`}</div>`;
-
-    // Start of the container that will have a max height and be scrollable
     let gridContent = '<div class="element-details-container">';
 
-    // Generating each element detail with the specific style
     Object.entries(planet.composition).forEach(([element, mass]) => {
-        const elementName = formatElementName(element); // Use the formatElementName function if needed
+        const elementName = formatElementName(element); 
         gridContent += `<div class="element-detail">${elementName}: ${mass.toExponential(2)} kg</div>`;
     });
 
-    gridContent += "</div>"; // Close the container
+    gridContent += "</div>"; 
+    habitablePlanetDiv.innerHTML += headerContent + gridContent; 
 
-    // Combine header and grid content, then append to habitablePlanetDiv
-    habitablePlanetDiv.innerHTML += headerContent + gridContent; // Use += to append under existing planet details
-
-    // Ensure your CSS file is linked in your HTML and contains the provided styles
 }
 
 function selectPlanet(index) {
     currentTargetIndex = index;
     if (celestialObjects[currentTargetIndex]) {
         const planet = celestialObjects[currentTargetIndex];
-        // Calculate and store the offset between the camera and the selected planet
         followOffset.copy(camera.position).sub(planet.position);
     }
 }
 
 function updateStarLight() {
-    // Access star data directly from universeData
     const starData = universeData.parentStar;
     let { color, intensity } = calculateStarColorAndIntensity(starData.type, starData.luminosity);
     color = new THREE.Color(color);
-    color = desaturateColor(color.getStyle(), 0.45); // Example: 0.5 as the desaturation factor
+    color = desaturateColor(color.getStyle(), 0.45); 
 
-    // Ensure a minimum intensity for visibility
-    const minIntensity = 5; // Adjust as needed for minimum visibility
+    const minIntensity = 5; 
     const effectiveIntensity = Math.max(intensity, minIntensity);
 
- 
-    // Update the lights
-    if (starLight) {
+     if (starLight) {
         starLight.color.set(new THREE.Color(color));
         starLight.intensity = effectiveIntensity / 2;
     }
 
-    // Update ambient light as well
     if (ambientLight) {
         ambientLight.color.set(new THREE.Color(color));
         ambientLight.intensity = intensity / 1000;
@@ -786,79 +690,39 @@ function updateStarLight() {
         scene.add(ambientLight);
     }
 
-    // Dynamic bloom effect adjustment based on star luminosity
     adjustBloomEffect(starData.luminosity);
 }
 
-function updateShaderLighting() {
-    // Assume material is your shader material and starLight is your THREE.PointLight
-   // planetMesh.material.uniforms.lightColor.value.copy(starLight.color);
-   // planetMesh.material.uniforms.lightPosition.value.copy(starLight.position);
-   // planetMesh.material.uniforms.lightIntensity.value = starLight.intensity;
-}
-
 function adjustBloomEffect() {
-    // Access star luminosity directly from universeData
     const starLuminosity = universeData.parentStar.luminosity;
 
-    // Adjust these values to fine-tune the appearance
     const luminosityFloor = 0.75; // Increase if too dim stars are too bright
     const luminosityCeiling = 1.00; // Decrease if very bright stars are too bright
     const minBloomStrength = 0.75; // Minimum bloom, increase if dim stars are too bright
     const maxBloomStrength = 1.00; // Maximum bloom, decrease if bright stars are too overpowering
 
-    // Apply a more aggressive adjustment for stars with high luminosity
     let bloomStrength;
     if (starLuminosity <= luminosityCeiling) {
-        // Normalize luminosity to the [0, 1] range based on defined floor and ceiling
         const normalizedLuminosity = (starLuminosity - luminosityFloor) / (luminosityCeiling - luminosityFloor);
-        // Calculate bloom strength within the defined range
         bloomStrength = maxBloomStrength - normalizedLuminosity * (maxBloomStrength - minBloomStrength);
     } else {
-        // For luminosities above the ceiling, reduce bloom strength more aggressively
         bloomStrength = maxBloomStrength / (Math.log(starLuminosity - luminosityCeiling + 5));
     }
 
-    // Ensure bloom strength does not fall below the minimum
     bloomStrength = Math.max(bloomStrength, minBloomStrength);
-
-    // Apply the calculated bloom strength to the bloomPass
     bloomPass.strength = bloomStrength;
-  //  console.log("Star Luminosity:", starLuminosity, "Adjusted Bloom Strength:", bloomStrength);
 }
 
 function adjustLightPosition() {
-    // Default starting position for the light remains the same
     const defaultPosition = { x: 0, y: 0, z: 0 };
-
-    // Reset starLight position to default before applying variance
     starLight.position.set(defaultPosition.x, defaultPosition.y, defaultPosition.z);
 
-    // Variance can be adjusted or kept dynamic based on universeData properties if needed in the future
     const variance = 0.3;
     const randomX = (Math.random() - 0.5) * variance;
     const randomY = Math.random() * (variance / 2);
 
-    // Adjust light position with variance
     starLight.position.x += randomX;
     starLight.position.y += Math.abs(randomY);
-
-  //  console.log("New Light Position:", starLight.position.x, starLight.position.y, starLight.position.z);
-}
-
-function adjustShadowCameraForRings(planetRadius, ringsOuterRadius) {
-    const size = Math.max(planetRadius, ringsOuterRadius);
-    
-    starLight.shadow.camera.left = -size;
-    starLight.shadow.camera.right = size;
-    starLight.shadow.camera.top = size;
-    starLight.shadow.camera.bottom = -size;
-    starLight.shadow.camera.near = 0.1;
-    starLight.shadow.camera.far = size * 3; // Make sure the far plane is far enough to include the rings
-    starLight.shadow.camera.updateProjectionMatrix();
-    
-    // This log will help you debug the sizes and ensure they're appropriate
-    // console.log(`Shadow Camera Frustum adjusted: Size = ${size}`);
 }
 
 function cleanUp() {
@@ -866,11 +730,11 @@ function cleanUp() {
         if (child.name.startsWith('planet') || child.name.startsWith('orbitPath')) {
             if (child.geometry) child.geometry.dispose();
             if (child.material instanceof THREE.Material) child.material.dispose();
-            return false; // Remove the planet and orbit path from the scene.children array
+            return false; 
         }
-        return true; // Keep the item in the scene.children array
+        return true; 
     });
-    celestialObjects = []; // Reset the celestial objects array
+    celestialObjects = []; 
 }
 
 function generateMoons() {
@@ -886,9 +750,9 @@ function setupStarGeneration() {
     const generateStarButton = document.getElementById('generateStarButton');
 
     generateStarButton.addEventListener('click', () => {
-        generateStar(); // This will update the universeData directly
-        displayStarProperties(); // Now reads from universeData
-        setupThreeJS(); // Should be refactored to use universeData
+        generateStar(); 
+        displayStarProperties();
+        setupThreeJS(); 
     });
 }
 
@@ -898,7 +762,6 @@ function generateStar() {
     const luminosity = generateStarLuminosity(parentStar.type, size);
     const habitableZone = calculateHabitableZone(luminosity);
 
-    // Updating universeData directly
     universeData.starData = {
         type: parentStar.type,
         age: parentStar.age,
@@ -912,17 +775,15 @@ function generateStar() {
 }
 
 function addStarToScene() {
-    // Access starData directly from universeData
-    // size of 1 for planet = 1 earth radius, scale star and system based on scaling factor
     const starData = universeData.parentStar;
-    const solarRadiiInEarthRadii = 109.2; // how big 1 solar radii is compared to 1 earth radius
+    const solarRadiiInEarthRadii = 109.2; 
     const starRadii = starData.size * solarRadiiInEarthRadii;
     const starGeometry = new THREE.SphereGeometry(starRadii, 32, 32);
     const { color, intensity } = calculateStarColorAndIntensity(starData.type, starData.luminosity);
 
-    const minEmissiveIntensity = 4.00; // Minimum visible emissive intensity
+    const minEmissiveIntensity = 4.00; 
     let emissiveIntensity = Math.max(Math.log1p(intensity), minEmissiveIntensity);
-    const starTexture = new THREE.TextureLoader().load('./texture/star_d.png'); // Load diffuse texture
+    const starTexture = new THREE.TextureLoader().load('./texture/star_d.png');
 
     const starMaterial = new THREE.MeshStandardMaterial({
         map: starTexture,
@@ -932,17 +793,14 @@ function addStarToScene() {
         emissiveIntensity: emissiveIntensity
     });
 
-    // Remove the existing visual star if present
     const existingStar = scene.getObjectByName('visualStar');
     if (existingStar) {
         scene.remove(existingStar);
     }
 
-    // Create and add the new star mesh to the scene
     const starMesh = new THREE.Mesh(starGeometry, starMaterial);
-    starMesh.name = 'visualStar'; // For easy identification and access
-    starMesh.position.set(0, 0, 0); // Center the star in the scene
-
+    starMesh.name = 'visualStar'; 
+    starMesh.position.set(0, 0, 0); 
     scene.add(starMesh);
     celestialObjects[0] = starMesh;
 
@@ -951,7 +809,6 @@ function addStarToScene() {
 function displayStarProperties() {
     const starPropertiesDiv = document.getElementById('starProperties');
 
-    // Accessing the star data directly from universeData
     const { type, age, size, mass, luminosity, habitableZone } = universeData.starData;
 
     starPropertiesDiv.innerHTML = `
@@ -963,7 +820,6 @@ function displayStarProperties() {
         <p>Habitable Zone: ${habitableZone.innerBoundary.toFixed(2)} - ${habitableZone.outerBoundary.toFixed(2)} AU</p>
     `;
 }
-// solar system generation
 
 function setupSolarSystemGeneration() {
     const generateSystemButton = document.getElementById('generateSystemButton');
@@ -971,14 +827,13 @@ function setupSolarSystemGeneration() {
     generateSystemButton.addEventListener('click', () => {
         populateUniverseData();
         displayStarProperties(universeData.starData);
-        displaySolarSystemProperties(); // Now directly uses universeData without needing it passed as a parameter
-        updateScene(); // A new function that encapsulates necessary updates
+        displaySolarSystemProperties();
+        updateScene();
 
     });
 }
 
 function formatAtmosphere(atmosphere) {
-    // Convert identifier to title case for display
     return atmosphere.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
@@ -1004,7 +859,7 @@ function displaySolarSystemProperties() {
                 <div class="planet-detail">Sidereal Day: ${rotationPeriodHours} hours</div>
                 <div class="planet-detail">Sidereal Year: ${localDaysPerOrbitValue} Sidereal Days (${orbitalPeriodDays} Earth Days)</div>
             </div>
-            <hr class="planet-separator">`; // Changed to hr for a horizontal line
+            <hr class="planet-separator">`;
         htmlContent += planetDetails;
 
         if (planet.orbitRadius >= universeData.parentStar.habitableZone.innerBoundary &&
@@ -1032,14 +887,14 @@ async function displayHabitablePlanetDetails(index) {
 
     const planet = universeData.solarSystem[index];
     const atmosphereFormatted = planet.atmosphere ? formatAtmosphere(planet.atmosphere) : 'N/A';
-    const planetName = generatePlanetName(index + 1); // index + 1 because planet index is 0-based
+    const planetName = generatePlanetName(index + 1); 
     const rotationPeriodHours = rotationSpeedToEarthHours(planet.rotationSpeed).toFixed(2);
     const orbitalPeriodDays = orbitalSpeedToEarthDays(planet.orbitalSpeed, planet.orbitRadius).toFixed(2);
     const localDaysPerOrbitValue = localDaysPerOrbit(planet.rotationSpeed, planet.orbitalSpeed, planet.orbitRadius).toFixed(2);
     const isInHabitableZone = planet.orbitRadius >= universeData.parentStar.habitableZone.innerBoundary && planet.orbitRadius <= universeData.parentStar.habitableZone.outerBoundary;
     const habitableZoneStatus = isInHabitableZone ? "Yes" : "No";
     const isAtmosphereHospitable = planet.atmosphere === 'nitrogen_type_III';
-    const surfaceTemperature = planet.surfaceTemperature; // Assuming this is already in Celsius
+    const surfaceTemperature = planet.surfaceTemperature; 
     const isTemperatureHospitable = surfaceTemperature >= -80 && surfaceTemperature <= 80;
     const isHospitable = isInHabitableZone && isAtmosphereHospitable && isTemperatureHospitable;
     const hospitableStatus = isHospitable ? "Yes" : "No";
@@ -1050,9 +905,8 @@ async function displayHabitablePlanetDetails(index) {
     <div class="element-details-container">
     `;
     Object.entries(planet.composition).forEach(([elementSymbol, mass]) => {
-        // Find the element name using the symbol
         const elementObj = elementsData.elements.find(element => element.symbol === elementSymbol);
-        const elementName = elementObj ? elementObj.name : elementSymbol; // Fallback to symbol if name not found
+        const elementName = elementObj ? elementObj.name : elementSymbol; 
         elementDetails += `<div class="element-detail">${elementName}: ${mass.toExponential(2)} kg</div>`;
     });
 
@@ -1094,8 +948,6 @@ let leftColumnContent = `
     </div>
 </div>`;
 
-
-       //  console.log('Geological Data for current planet:', planet.geologicalData);
 const geologicalData = planet.geologicalData;
 const interiorCompositionHtml = `
 <div class="interior-composition-container">
@@ -1106,7 +958,6 @@ const interiorCompositionHtml = `
     </ul>
 </div>
 `;
-
 
 let atmosphereCompositionContent = '<div class="composition-container">';
 const atmosphereDetails = getAtmosphereDetailsForDisplay(planet.atmosphere).split(', ');
@@ -1123,34 +974,27 @@ let rightColumnContent = `
     ${interiorCompositionHtml}
 </div>`;
 
-// Set the innerHTML of habitablePlanetDiv to include both columns
 habitablePlanetDiv.innerHTML = `${leftColumnContent}${rightColumnContent}`;
- 
-  //  habitablePlanetDiv.innerHTML = `${planetDetailsContent}${elementDetails}${graphContainer}`;
-   // console.log(document.getElementById('elementAbundanceGraph'));
-    plotElementProbabilityGraph(planet.composition);
+     plotElementProbabilityGraph(planet.composition);
 
 }
 
 function plotElementProbabilityGraph(planetComposition) {
-    // Prepare data for plotting
     const elementSymbols = Object.keys(planetComposition);
     const masses = elementSymbols.map(symbol => planetComposition[symbol]);
 
-    // Prepare labels (using element names if possible, fallback to symbol)
     const labels = elementSymbols.map(symbol => {
         const elementObj = elementsData.elements.find(element => element.symbol === symbol);
         return elementObj ? elementObj.name : symbol; // Use element name if available
     });
 
-    // Plot the graph
     const ctx = document.getElementById('elementAbundanceGraph').getContext('2d');
 const chart = new Chart(ctx, {
     type: 'line',
     data: {
-        labels: labels.map(label => label.toUpperCase()), // Force x-axis labels to uppercase
+        labels: labels.map(label => label.toUpperCase()), 
         datasets: [{
-            label: 'ELEMENTAL COMPOSITION (KG)', // Force dataset label to uppercase
+            label: 'ELEMENTAL COMPOSITION (KG)',
             data: masses,
             backgroundColor: 'rgba(54, 162, 235, 0.2)',
             borderColor: '#cc77ff',
@@ -1169,7 +1013,6 @@ const chart = new Chart(ctx, {
                 ticks: {
                     color: '#cc77ff',
                     callback: function(value) {
-                        // Return the value formatted as exponential
                         return Number(value).toExponential();
                     }
                 }
@@ -1178,8 +1021,8 @@ const chart = new Chart(ctx, {
                 ticks: {
                     color: '#cc77ff',
                     font: {
-                        family: 'Antonio', // Apply the font to x-axis labels
-                        size: 12 // Adjust as needed
+                        family: 'Antonio', 
+                        size: 12 
                     }
                 }
             }
@@ -1192,7 +1035,7 @@ const chart = new Chart(ctx, {
                         family: 'Antonio',
                         size: 14
                     },
-                    textTransform: 'uppercase' // Although not a native Chart.js option, this demonstrates intent. CSS may be required for full effect.
+                    textTransform: 'uppercase' 
                 }
             }
         }
@@ -1202,29 +1045,19 @@ const chart = new Chart(ctx, {
 }
 
 function generateSystemName() {
-    // All possible characters in the naming scheme
     const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let name = 'P'; // Start with 'P' 
-
-    // Generate the next 3 alphanumeric characters
     for (let i = 0; i < 3; i++) {
         name += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-
-    // Append a hyphen before the final three digits
     name += '-';
-
-    // Generate the final three alphanumeric characters
     for (let i = 0; i < 3; i++) {
         name += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-
-    // Store the system name
     universeData.systemName = name;
 }
 
 function generatePlanetName(planetIndex) {
-    // Use the stored system name and append the planet index
     return `${universeData.systemName}/${planetIndex}`;
 }
 
@@ -1243,34 +1076,24 @@ function calculateStarColorAndIntensity(starType, starLuminosity) {
         'M': 3250
     };
 
-    // Default temperature for stars not in the map
     let baseTemperature = temperatures[starType] || 5800;
-
-    // Applying visual temperature variance for diversity
     let variedTemperature = applyVisualTemperatureVariance(baseTemperature);
-
-    // Converting temperature to a visible color
     let color = temperatureToRGB(variedTemperature);
-
-    // Base intensity to start with, ensuring no star is invisible
     const baseIntensity = 1;
-    // Adjusting intensity based on the star's luminosity with a cap
     let intensity = Math.min(baseIntensity * starLuminosity, 300);
-
     return { color, intensity };
 }
 
 function calculateStarTemperature(starType) {
-    // Simplified example based on stellar classification
     switch(starType) {
-        case 'M': return 3250; // Example values
+        case 'M': return 3250;
         case 'K': return 4250;
-        case 'G': return 5750; // Sun-like
+        case 'G': return 5750; 
         case 'F': return 6750;
         case 'A': return 8750;
         case 'B': return 20000;
         case 'O': return 35000;
-        default: return 5500; // Default to Sun-like temperature
+        default: return 5500;
     }
 }
 
@@ -1278,25 +1101,21 @@ function desaturateColor(color, factor) {
     const white = new THREE.Color(0xffffff);
     const originalColor = new THREE.Color(color);
     const desaturatedColor = originalColor.lerp(white, factor);
-    return desaturatedColor.getStyle(); // Returns the CSS color string
+    return desaturatedColor.getStyle();
 }
 
 function applyVisualTemperatureVariance(baseTemperature) {
-    const variancePercentage = 0.05; // e.g., 5% variance
+    const variancePercentage = 0.05; 
     const varianceAmount = baseTemperature * variancePercentage;
     const variedTemperature = baseTemperature + (Math.random() * 2 - 1) * varianceAmount;
     return variedTemperature;
 }
 
 function temperatureToRGB(temperature) {
-    // Define temperature range
-    const minTemp = 3000; // Min temperature (K)
-    const maxTemp = 40000; // Max temperature (K)
+    const minTemp = 3000;
+    const maxTemp = 40000;
 
-    // Normalize temperature to 0-1 range
     const t = (Math.min(Math.max(temperature, minTemp), maxTemp) - minTemp) / (maxTemp - minTemp);
-
-    // Define color gradients
     const colors = {
         red: [255, 0, 0],
         yellow: [255, 255, 0],
@@ -1304,8 +1123,6 @@ function temperatureToRGB(temperature) {
         lightBlue: [173, 216, 230],
         blue: [0, 0, 255]
     };
-
-    // Interpolate between colors based on temperature
     let color;
     if (t < 0.25) {
         color = interpolateColors(colors.red, colors.yellow, t / 0.25);
@@ -1316,7 +1133,6 @@ function temperatureToRGB(temperature) {
     } else {
         color = interpolateColors(colors.lightBlue, colors.blue, (t - 0.75) / 0.25);
     }
-
     return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
 }
 
@@ -1343,65 +1159,45 @@ function getAtmosphereColor(composition) {
         'nitrogen_type_III': '#4FC3F7',
         'carbon_type_I': '#CE93D8',
         'ammonia_type_I': '#AED581',
-        'unknown': '#add8e6' // Default color for unknown composition
+        'unknown': '#add8e6'
     };
 
-    // Function to apply subtle random variation to the color
     function applyRandomVariation(color) {
-        // Convert hex color to RGB
         let rgb = parseInt(color.substring(1), 16);
-
-        // Apply variation to each color component
         let r = (rgb >> 16) & 0xFF;
         let g = (rgb >> 8) & 0xFF;
         let b = rgb & 0xFF;
-
-        // Randomly adjust each component within a range of -5 to 5
         r = Math.min(255, Math.max(0, r + Math.floor(Math.random() * 11) - 5));
         g = Math.min(255, Math.max(0, g + Math.floor(Math.random() * 11) - 5));
         b = Math.min(255, Math.max(0, b + Math.floor(Math.random() * 11) - 5));
-
-        // Convert back to hex color string
         return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     }
-
-    // Check if the composition exists in the baseColors, apply random variation if so
     if (baseColors[composition]) {
         return applyRandomVariation(baseColors[composition]);
     } else {
-        // Return the default 'unknown' color with random variation
         return applyRandomVariation(baseColors['unknown']);
     }
 }
 
 function calculateAtmosphereScale(planetRadius) {
-  // Define the base scale factor
-  const baseScale = 1.025; // 2.5% larger than the planet size as the base scale
-  // Define a scale rate that will determine how much larger the atmosphere gets for larger planets
-  const scaleRate = 0.01; // 1% additional scale per unit of planet size
-  // Calculate the atmosphere scale factor
+  const baseScale = 1.025; 
+  const scaleRate = 0.01;
   const atmosphereScale = baseScale + (planetRadius * scaleRate);
-  // Cap the atmosphere scale to a maximum value to prevent excessively large atmospheres
-  const maxScale = 1.1; // 10% larger than the planet size as the max scale
+  const maxScale = 1.1;
   return Math.min(atmosphereScale, maxScale);
 
 }
 
 function createAtmosphere(planetRadius, composition, planetType) {
-  const atmosphereScaleFactor = calculateAtmosphereScale(planetRadius); // Use the new scale factor
+  const atmosphereScaleFactor = calculateAtmosphereScale(planetRadius);
   const atmosphereRadius = planetRadius * atmosphereScaleFactor;
   const geometry = new THREE.SphereGeometry(atmosphereRadius, 32, 32);
   const color = getAtmosphereColor(composition);
   const planetColor = getColorForPlanetType(planetType);
-    
-    // Log the atmosphere information
-   // console.log("Planet Radius:", planetRadius, "Atmosphere Radius:", atmosphereRadius);
-   // console.log("Atmosphere Color:", new THREE.Color(color).getStyle());
-
     const material = new THREE.ShaderMaterial({
         uniforms: {
             atmosphereColor: { value: new THREE.Color(color) },
-            surfaceColor: { value: new THREE.Color(planetColor) }, // Assuming the surface is white for simplicity
+            surfaceColor: { value: new THREE.Color(planetColor) },
         },
         vertexShader: /* glsl */`
             varying vec3 vertexNormal;
@@ -1437,48 +1233,39 @@ function createAtmosphere(planetRadius, composition, planetType) {
 }
 
 function createSegmentedRings(planetRadius, planetType, planetData) {
-    const ringSegmentsGroup = new THREE.Group(); // Group to hold all ring segments
-
-    // Randomize the total number of ring segments between 5 and 20
+    const ringSegmentsGroup = new THREE.Group();
     const numSegments = Math.floor(Math.random() * (20 - 5 + 1)) + 5;
-    let currentOuterRadius = planetRadius * 1.2; // Initial outer radius of the first segment
+    let currentOuterRadius = planetRadius * 1.2; 
 
     for (let i = 0; i < numSegments; i++) {
-        // Generate random width for the segment, with a minimum width to ensure visibility
         const segmentWidth = Math.random() * 0.2 + 0.05;
         const innerRadius = currentOuterRadius;
         const outerRadius = innerRadius + segmentWidth;
 
-        // Add a small variance to the distance between segments
-        const distanceVariance = Math.random() * 0.05 + 0.01; // Adjust variance as desired
-        currentOuterRadius += distanceVariance; // Apply variance to the next segment's starting point
+        const distanceVariance = Math.random() * 0.05 + 0.01; 
+        currentOuterRadius += distanceVariance; 
 
         const ringGeometry = new THREE.RingGeometry(innerRadius, outerRadius, 64, 1);
         const ringMaterial = new THREE.MeshStandardMaterial({
-            color: ringColor(planetType), // Dynamic color based on planet type
+            color: ringColor(planetType), 
             side: THREE.DoubleSide,
             transparent: true,
-            opacity: 0.4 + Math.random() * 0.5 // Random opacity for visual variety
+            opacity: 0.4 + Math.random() * 0.5 
         });
 
         const ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
         const axialTiltRadians = THREE.Math.degToRad(planetData.axialTilt);
-       // ringMesh.rotation.x = axialTiltRadians;
 
-        ringMesh.rotation.x = Math.PI / 2; // Adjust ring orientation to lie flat
-
+        ringMesh.rotation.x = Math.PI / 2;
         ringMesh.receiveShadow = true;
         ringMesh.castShadow = true;
+        ringSegmentsGroup.add(ringMesh);
 
-        ringSegmentsGroup.add(ringMesh); // Add the segment to the group
-
-        // Prepare the outer radius of the next segment by including the segment width
-        currentOuterRadius = outerRadius + distanceVariance; // Include the distance variance for the next segment
+        
+        currentOuterRadius = outerRadius + distanceVariance;
     }
     
     let outerRadius = planetRadius * 1.2;
-
-    // Return the group and the final calculated outer radius
     return {
         group: ringSegmentsGroup, // The group containing all segments
         outerRadius: outerRadius  // The final outer radius of the rings
@@ -1487,7 +1274,7 @@ function createSegmentedRings(planetRadius, planetType, planetData) {
 
 function createMoonsForPlanet(planetMesh, planetData, planetIndex) {
     const moons = [];
-    const baseDistanceFromPlanet = planetData.radius * 10.0; // Base distance from the planet's surface
+    const baseDistanceFromPlanet = planetData.radius * 10.0;
 
     for (let i = 0; i < planetData.moons; i++) {
         const moonScaleFactor = Math.max(planetData.radius / 5, 0.05);
@@ -1501,43 +1288,26 @@ function createMoonsForPlanet(planetMesh, planetData, planetIndex) {
         const distanceIncrement = i * (planetData.radius * 0.2);
         const distanceFromPlanetAdjusted = baseDistanceFromPlanet + distanceIncrement;
         
-        // Randomize the orbital inclination and phase of the moon
-        const orbitalInclination = (Math.random() - 0.5) * Math.PI; // Inclination angle (radians)
-        const orbitalPhase = Math.random() * Math.PI * 2; // Phase angle (radians)
+        const orbitalInclination = (Math.random() - 0.5) * Math.PI;
+        const orbitalPhase = Math.random() * Math.PI * 2; 
 
-        // Calculate initial position with inclination and phase
         moonMesh.position.set(
             Math.cos(orbitalPhase) * distanceFromPlanetAdjusted,
-            Math.sin(orbitalPhase) * Math.sin(orbitalInclination) * distanceFromPlanetAdjusted, // Apply inclination
+            Math.sin(orbitalPhase) * Math.sin(orbitalInclination) * distanceFromPlanetAdjusted,
             Math.sin(orbitalPhase) * Math.cos(orbitalInclination) * distanceFromPlanetAdjusted
         );
 
-        // Store orbital parameters for animation
         moonMesh.userData.orbit = {
             radius: distanceFromPlanetAdjusted,
             inclination: orbitalInclination,
             phase: orbitalPhase,
-            speed: 0.000005 // This can also be randomized for each moon
+            speed: 0.000005 
         };
 
         planetMesh.add(moonMesh);
         moons.push(moonMesh);
     }
     return moons;
-}
-
-function hexToRgb(hex) {
-    // Assuming hex is a string like "0xffa07a"
-    var r = (hex >> 16) & 255;
-    var g = (hex >> 8) & 255;
-    var b = hex & 255;
-    return `rgb(${r}, ${g}, ${b})`;
-}
-
-function disposeOfMesh(mesh) {
-    if (mesh.geometry) mesh.geometry.dispose();
-    if (mesh.material.map) mesh.material.map.dispose();
-    if (mesh.material) mesh.material.dispose();
 }
 
 function createNoiseTexture(size = 1024) {
@@ -1561,167 +1331,6 @@ function createNoiseTexture(size = 1024) {
 
     return new THREE.CanvasTexture(canvas);
 }
-
-function getColorForPlanetType(planetType) {
-    const colorMap = {
-        'Terrestrial': 0x228b22, // Forest Green
-        'Ice Giant': 0xadd8e6,   // Light Blue
-        'Gas Giant': 0xffa07a,   // Light Salmon (for an orange/tan look)
-        'Lava Planet': 0xff4500, // OrangeRed
-        'Ocean World': 0x1e90ff, // DodgerBlue
-        'Dwarf Planet': 0x404040, // Gray
-        // Add more types as needed
-    };
-
-    return colorMap[planetType] || 0xffffff; // Default to white if type not found
-}
-
-function generateNoiseTexture(width, height, scale) {
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    const imageData = ctx.createImageData(width, height);
-  
-    // Initialize the 2D noise function
-    const noise2D = createNoise2D();
-  
-    for (let x = 0; x < width; x++) {
-      for (let y = 0; y < height; y++) {
-        // Generate noise value for each pixel
-        // The scale factor controls the frequency of the noise
-        const nx = x / scale, ny = y / scale;
-        const value = noise2D(nx, ny) * 0.5 + 0.5; // Normalize to 0-1
-  
-        // Convert the noise value to a grayscale color
-        const color = Math.floor(value * 255);
-        const index = (y * width + x) * 4;
-        imageData.data[index] = color;     // Red
-        imageData.data[index + 1] = color; // Green
-        imageData.data[index + 2] = color; // Blue
-        imageData.data[index + 3] = 255;   // Alpha
-      }
-    }
-  
-    // Update canvas with the generated noise
-    ctx.putImageData(imageData, 0, 0);
-  
-    // Create a THREE.Texture from the canvas
-    const texture = new THREE.Texture(canvas);
-    texture.needsUpdate = true; // Mark the texture for update
-    return texture;
-}
-
-function generateTextures(width, height, scale, detail, dimension, lacunarity, amplitudeScale) {
-    const canvasColor = document.createElement('canvas');
-    const canvasRoughness = document.createElement('canvas');
-    canvasColor.width = canvasRoughness.width = width;
-    canvasColor.height = canvasRoughness.height = height;
-    const ctxColor = canvasColor.getContext('2d');
-    const ctxRoughness = canvasRoughness.getContext('2d');
-    const imageDataColor = ctxColor.createImageData(width, height);
-    const imageDataRoughness = ctxRoughness.createImageData(width, height);
-  
-    const noise2D = createNoise2D();
-  
-    function fbm(nx, ny) {
-      let value = 0;
-      let amplitude = amplitudeScale;
-      let frequency = scale;
-      for (let i = 0; i < dimension; i++) {
-        value += amplitude * noise2D(nx * frequency, ny * frequency);
-        frequency *= lacunarity;
-        amplitude *= detail;
-      }
-      return value;
-    }
-    
-    function edgeFactor(u) {
-        // This function calculates a factor that reduces towards the edges of the map
-        const edgeWidth = 0.05; // The width of the edge where the blending starts
-        const leftEdge = smoothstep(0.0, edgeWidth, u);
-        const rightEdge = smoothstep(1.0, 1.0 - edgeWidth, u);
-        return Math.min(leftEdge, rightEdge);
-      }
-
-      const roughnessMin = 0.3; // Lower limit of roughness (upper limit of shininess)
-      const roughnessMax = 0.7; // Upper limit of roughness (lower limit of shininess)
-
-    for (let x = 0; x < width; x++) {
-      for (let y = 0; y < height; y++) {
-        // Normalizing the coordinates to the size of the texture to avoid stretching
-        const nx = x / width, ny = y / height;
-        // Generate fBm noise value for each pixel
-        const value = fbm(nx, ny) * 0.5 + 0.5; // Normalize to 0-1
-
-        const u = x / width; // Normalized u coordinate
-        const blend = edgeFactor(u);
-        const blendedValue = value * blend; // Apply blending factor
-
-
-
-        // Convert the noise value to a grayscale color
-        const color = mapToColor(blendedValue); // Use the blended value to get the color
-        let index = (y * width + x) * 4;
-        imageDataColor.data[index] = color.r * 255;     // Red
-        imageDataColor.data[index + 1] = color.g * 255; // Green
-        imageDataColor.data[index + 2] = color.b * 255; // Blue
-        imageDataColor.data[index + 3] = 255;   // Alpha
-
-        // Calculate roughness map value (inverted and clamped)
-        let roughnessValue = 1.0 - blendedValue; // Use blended value for roughness
-        roughnessValue = roughnessValue * (roughnessMax - roughnessMin) + roughnessMin;
-        roughnessValue = Math.max(0, Math.min(1, roughnessValue)); // Ensure it's between 0 and 1
-        imageDataRoughness.data[index] = roughnessValue * 255;
-        imageDataRoughness.data[index + 1] = roughnessValue * 255;
-        imageDataRoughness.data[index + 2] = roughnessValue * 255;
-        imageDataRoughness.data[index + 3] = 255;
-      }
-    }
-  
-    // Update canvas with the generated noise
-    ctxColor.putImageData(imageDataColor, 0, 0);
-    ctxRoughness.putImageData(imageDataRoughness, 0, 0);
-
-    // Create a THREE.Texture from the canvas
-    const textureColor = new THREE.Texture(canvasColor);
-    textureColor.needsUpdate = true;
-    const textureRoughness = new THREE.Texture(canvasRoughness);
-    textureRoughness.needsUpdate = true;
-
-    return {
-        colorMap: textureColor,
-        roughnessMap: textureRoughness
-      };
-
-  }
-
-  function mapToColor(value) {
-    // Define color stops for terrain features, e.g., deep water, shallow water, land, mountains
-    value = Math.max(0, Math.min(value, 1));
-
-    const deepWater = new THREE.Color(0x2a4857);
-    const shallowWater = new THREE.Color(0x4f7272);
-    const sand = new THREE.Color(0x988b65);
-    const grass = new THREE.Color(0x456c18);
-    const rock = new THREE.Color(0x61524e);
-    const snow = new THREE.Color(0xf2d3d0);
-  
-    // Interpolate between colors based on the noise value
-    if (value < 0.2) return deepWater;
-    else if (value < 0.4) return shallowWater.lerp(deepWater, (value - 0.2) * 5);
-    else if (value < 0.5) return sand.lerp(shallowWater, (value - 0.4) * 10);
-    else if (value < 0.7) return grass.lerp(sand, (value - 0.5) * 5);
-    else if (value < 0.9) return rock.lerp(grass, (value - 0.7) * 5);
-    else return snow.lerp(rock, (value - 0.9) * 10);
-  }
-
-function smoothstep(edge0, edge1, x) {
-    // Scale, and clamp x to 0..1 range
-    x = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
-    // Evaluate polynomial
-    return x * x * (3 - 2 * x);
-  }
 
 function createStarFieldTexture(size = 2048, stars = 10000) {
     const canvas = document.createElement('canvas');
@@ -1749,30 +1358,25 @@ function createStarFieldTexture(size = 2048, stars = 10000) {
     return new THREE.CanvasTexture(canvas);
 }
 
-
 function ringColor(planetType) {
-    // Default color
-    let colorHex = 0xada9a1; // A generic ring color
+    let colorHex = 0xada9a1; 
 
     switch (planetType) {
         case 'Gas Giant':
-            colorHex = 0xd2b48c; // Tan
+            colorHex = 0xd2b48c;
             break;
         case 'Ice Giant':
-            colorHex = 0xadd8e6; // Light Blue
+            colorHex = 0xadd8e6; 
             break;
-        // Add more cases as needed
         default:
-         //   console.log(`No specific ring color for planet type: ${planetType}. Using default.`);
     }
 
     return new THREE.Color(colorHex);
 }
 
-// Constants for scaling factors - these can be adjusted to "look right"
-const ROTATION_SPEED_SCALE = 0.001; // Scale factor for rotation speed to Earth hours
-const ORBITAL_SPEED_SCALE = 0.000000048; // Scale factor for orbital speed to Earth days
-const LOCAL_DAY_SCALE = 1.00; // Scale factor for calculating local days per orbit
+const ROTATION_SPEED_SCALE = 0.001; 
+const ORBITAL_SPEED_SCALE = 0.000000048; 
+const LOCAL_DAY_SCALE = 1.00;
 
 function rotationSpeedToEarthHours(rotationSpeed) {
     const rotationPeriodHours = (2 * Math.PI / Math.abs(rotationSpeed)) * ROTATION_SPEED_SCALE;
@@ -1787,9 +1391,7 @@ function orbitalSpeedToEarthDays(orbitalSpeed, orbitRadiusAU) {
 function localDaysPerOrbit(rotationSpeed, orbitalSpeed, orbitRadiusAU) {
     const rotationPeriodHours = rotationSpeedToEarthHours(rotationSpeed);
     const orbitalPeriodDays = orbitalSpeedToEarthDays(orbitalSpeed, orbitRadiusAU);
-    // Convert rotation period in hours to days for the ratio calculation
     const rotationPeriodDays = rotationPeriodHours / 24;
-    // Calculate local days per orbit without any additional scaling
     const localDays = orbitalPeriodDays / rotationPeriodDays;
     return localDays;
 }
@@ -1801,39 +1403,27 @@ function displayTimeConversions(selectedPlanetIndex) {
     const orbitalPeriodDays = orbitalSpeedToEarthDays(planet.orbitalSpeed, planet.orbitRadius);
     const localDays = localDaysPerOrbit(planet.rotationSpeed, planet.orbitalSpeed, planet.orbitRadius);
 
-   // console.log(`Rotation Period for ${planet.type}: ${rotationPeriodHours.toFixed(2)} Earth hours`);
-   // console.log(`Orbital Period for ${planet.type}: ${orbitalPeriodDays.toFixed(2)} Earth days`);
-   // console.log(`Local Days per Orbit for ${planet.type}: ${localDays.toFixed(2)}`);
 }
 
 function getRotationSpeed(orbitRadius, habitableZone, AU_TO_SCENE_SCALE, systemOuterEdge) {
-    // Convert orbitRadius to AU for accurate comparison
     let orbitRadiusAU = orbitRadius / AU_TO_SCENE_SCALE;
     
-    // Determine system size and calculate the distance as a percentage of system size
     let systemSizeAU = systemOuterEdge / AU_TO_SCENE_SCALE;
     let distancePercentage = orbitRadiusAU / systemSizeAU;
 
-    // Dynamic base speed adjustment based on system size or habitable zone width
     let habitableZoneWidth = habitableZone.outerBoundary - habitableZone.innerBoundary;
-    let scalingFactor = 1 + (habitableZoneWidth / 2); // Example scaling based on habitable zone width
+    let scalingFactor = 1 + (habitableZoneWidth / 2); 
     
-    // Apply a random factor for additional variability
     let randomFactor = Math.random() * scalingFactor;
     
-    // Adjust base rotation speed dynamically
     let baseRotationSpeed = 0.0001 + (distancePercentage * randomFactor * 0.0001);
 
-    // Apply a further modifier based on distance to the center of the habitable zone
     let habCenterAU = (habitableZone.innerBoundary + habitableZone.outerBoundary) / 2;
     let distanceFromCenter = Math.abs(orbitRadiusAU - habCenterAU) / habCenterAU;
-    let speedModifier = Math.max(0.5, 1 - distanceFromCenter); // Closer to the center = slower rotation
-
-    // Final rotation speed calculation
+    let speedModifier = Math.max(0.5, 1 - distanceFromCenter); 
     let finalRotationSpeed = baseRotationSpeed * speedModifier;
-    finalRotationSpeed = Math.max(0.00001, Math.min(finalRotationSpeed, 0.0005)); // Ensure within realistic bounds
+    finalRotationSpeed = Math.max(0.00001, Math.min(finalRotationSpeed, 0.0005)); 
 
-    // Optionally randomize rotation direction
     finalRotationSpeed *= Math.random() < 0.5 ? 1 : -1;
 
     return finalRotationSpeed;

@@ -27,19 +27,14 @@ function generateOrbit(seed = null) {
     }
 
     const parentStar = generateParentStar();
-    // Calculate the habitable zone based on the star's luminosity
     const luminosity = generateStarLuminosity(parentStar.type, parentStar.size);
     parentStar.habitableZone = calculateHabitableZone(luminosity);
-    // const habitableZone = calculateHabitableZone(/* parameters */); // This line is not needed as habitableZone is already calculated
     const solarSystem = generateSolarSystem(parentStar);
-//    const targetPlanet = selectTargetPlanet(solarSystem);
 
     return {
         parentStar: parentStar,
         solarSystem: solarSystem,
         habitableZone: parentStar.habitableZone
-
-//        targetPlanet: targetPlanet
     };
 }
 
@@ -61,8 +56,6 @@ function generateParentStar() {
 }
 
 function calculateHabitableZone(luminosity) {
-    // Constants for inner and outer boundaries in AU based on luminosity
-    // These are simplified estimates; actual calculations can be more complex
     const innerBoundary = Math.sqrt(luminosity / 1.1);
     const outerBoundary = Math.sqrt(luminosity) / 0.53;
 
@@ -76,32 +69,25 @@ function generateStarAge(type) {
     let age;
     switch (type) {
         case "M":
-            // Red dwarfs have very long lifespans
-            age = getRandomAge(1, 5000); // in billions of years
+            age = getRandomAge(1, 5000); 
             break;
         case "K":
-            // Orange dwarfs
-            age = getRandomAge(1, 30); // in billions of years
+            age = getRandomAge(1, 30); 
             break;
         case "G":
-            // Yellow dwarfs
-            age = getRandomAge(1, 10); // in billions of years
+            age = getRandomAge(1, 10); 
             break;
         case "F":
-            // Yellow-white stars
-            age = getRandomAge(1, 4); // in billions of years
+            age = getRandomAge(1, 4); 
             break;
         case "A":
-            // White stars
-            age = getRandomAge(0.1, 3); // in billions of years
+            age = getRandomAge(0.1, 3); 
             break;
         case "B":
-            // Blue-white stars
-            age = getRandomAge(0.01, 0.5); // in billions of years
+            age = getRandomAge(0.01, 0.5); 
             break;
         case "O":
-            // Blue stars, shortest lifespan
-            age = getRandomAge(0.001, 0.1); // in billions of years
+            age = getRandomAge(0.001, 0.1); 
             break;
         default:
             age = 0;
@@ -114,42 +100,35 @@ function getRandomAge(min, max) {
 }
 
 function generateStarSizeAndMass(type, age) {
-    let size; // Radius of the star in terms of Solar radii
-    let mass; // Mass of the star in terms of Solar masses
+    let size; 
+    let mass;
 
     switch (type) {
         case "M":
-            // Red dwarfs
-            size = getRandomValue(0.1, 0.7); // Smaller than the Sun
-            mass = getRandomValue(0.08, 0.45); // Less massive than the Sun
+            size = getRandomValue(0.1, 0.7); 
+            mass = getRandomValue(0.08, 0.45); 
             break;
         case "K":
-            // Orange dwarfs
             size = getRandomValue(0.7, 0.96);
             mass = getRandomValue(0.45, 0.8);
             break;
         case "G":
-            // Yellow dwarfs
             size = getRandomValue(0.96, 1.15);
             mass = getRandomValue(0.8, 1.04);
             break;
         case "F":
-            // Yellow-white stars
             size = getRandomValue(1.15, 1.4);
             mass = getRandomValue(1.04, 1.4);
             break;
         case "A":
-            // White stars
             size = getRandomValue(1.4, 1.8);
             mass = getRandomValue(1.4, 2.1);
             break;
         case "B":
-            // Blue-white stars
             size = getRandomValue(1.8, 6.6);
             mass = getRandomValue(2.1, 16);
             break;
         case "O":
-            // Blue stars, largest and most massive
             size = getRandomValue(6.6, 20);
             mass = getRandomValue(16, 90);
             break;
@@ -163,19 +142,16 @@ function generateStarSizeAndMass(type, age) {
 
 
 function generateStarLuminosity(type, size) {
-    let luminosity; // Luminosity in terms of Solar luminosity
+    let luminosity;
 
-    // Simplified model: Luminosity increases with size and varies by type
     switch (type) {
         case "M":
-            // Red dwarfs are less luminous
             luminosity = size * 0.08;
             break;
         case "K":
             luminosity = size * 0.6;
             break;
         case "G":
-            // Similar to our Sun
             luminosity = size;
             break;
         case "F":
@@ -188,7 +164,6 @@ function generateStarLuminosity(type, size) {
             luminosity = size * 25;
             break;
         case "O":
-            // Most luminous
             luminosity = size * 50;
             break;
         default:
@@ -198,10 +173,6 @@ function generateStarLuminosity(type, size) {
     return luminosity;
 }
 
-console.log("orbit.js loaded");
-// end of the star generation
-// 
-// solar system generator
 function generateSolarSystem(parentStar) {
     const numberOfPlanets = getRandomInt(3, 18);
     let solarSystemPlanets = [];
@@ -230,7 +201,6 @@ function generateSolarSystem(parentStar) {
     }
 
 	    if (!habitableZonePlanetAdded) {
-	        // Adjust one of the planets to be in the habitable zone
 	        adjustForHabitableZonePlanet(solarSystemPlanets, parentStar.habitableZone);
     }
     solarSystemPlanets.sort((a, b) => a.orbitRadius - b.orbitRadius);
@@ -238,15 +208,12 @@ function generateSolarSystem(parentStar) {
 }
 
 function getRandomOrbitRadius(parentStar, planetIndex, totalPlanets) {
-    const luminosity = parentStar.luminosity; // Assuming this is relative to the Sun
-    // Calculate the habitable zone based on luminosity
+    const luminosity = parentStar.luminosity; 
     const innerHabitable = Math.sqrt(luminosity / 1.1);
     const outerHabitable = Math.sqrt(luminosity / 0.53);
 
-    // Adjust min and max orbit to ensure it includes the habitable zone
     const minOrbit = 0.2; 
-    const maxOrbit = Math.max(50, outerHabitable + 20); // Ensure outer bound includes the habitable zone
-
+    const maxOrbit = Math.max(50, outerHabitable + 20); 
     const spacingFactor = (Math.log(maxOrbit) - Math.log(minOrbit)) / totalPlanets;
     return Math.exp(Math.log(minOrbit) + spacingFactor * planetIndex);
 }
@@ -260,23 +227,19 @@ function getAxialTilt(planetType){
         'Gas Giant': { min: 15, max: 90 },
         'Ice Giant': { min: 10, max: 90 },
     };
-    const range = tiltRanges[planetType] || tiltRanges['Terrestrial']; // Default to Terrestrial if not found
-    // Generate a random tilt within the range
+    const range = tiltRanges[planetType] || tiltRanges['Terrestrial']; 
     return Math.random() * (range.max - range.min) + range.min;
 }
 
 
 function determinePlanetType(parentStar, orbitRadius) {
     const luminosity = parentStar.luminosity;
-    // Recalculate the habitable zone
     const innerHabitable = Math.sqrt(luminosity / 1.1);
     const outerHabitable = Math.sqrt(luminosity / 0.53);
 
-    // Decision logic based on the habitable zone
     if (orbitRadius < innerHabitable) {
         return "Lava Planet";
     } else if (orbitRadius >= innerHabitable && orbitRadius <= outerHabitable) {
-        // Terrestrial or Ocean World based on additional factors or randomness
         return Math.random() > 0.5 ? "Terrestrial" : "Ocean World";
     } else if (orbitRadius > outerHabitable && orbitRadius < outerHabitable + 15) {
         return "Gas Giant";
@@ -289,7 +252,6 @@ function determinePlanetType(parentStar, orbitRadius) {
 
 
 function getPlanetSize(planetType) {
-    // assign sizes based on planet type
     switch (planetType) {
         case "Lava Planet":
             return getRandomValue(0.3, 1); 
@@ -320,10 +282,8 @@ function getPlanetAtmosphere(planetType, orbitRadius, habitableZone) {
         'ammonia': ['ammonia_type_I']
     };
 
-    // Helper function to select a random atmosphere from a list
     const randomAtmosphere = (types) => types[Math.floor(Math.random() * types.length)];
 
-    // Determine atmosphere based on planet type and other conditions
     switch (planetType) {
         case "Terrestrial":
             if (isInHabitableZone(orbitRadius, habitableZone)) {
@@ -341,7 +301,7 @@ function getPlanetAtmosphere(planetType, orbitRadius, habitableZone) {
         case "Dwarf Planet":
             return randomAtmosphere([...atmospheres['trace'], ...atmospheres['carbon_dioxide']]);
         default:
-            return "unknown"; // Handle the 'unknown' case
+            return "unknown"; 
     }
 }
 
@@ -376,10 +336,8 @@ function adjustForHabitableZonePlanet(planets, habitableZone) {
     let habitableZonePlanetExists = planets.some(planet => isInHabitableZone(planet.orbitRadius, habitableZone));
 
     if (!habitableZonePlanetExists) {
-        // Find a planet to adjust into the habitable zone
         let planetToAdjust = planets[Math.floor(random() * planets.length)];
         planetToAdjust.orbitRadius = (habitableZone.innerBoundary + habitableZone.outerBoundary) / 2;
-        // planetToAdjust.type = "Terrestrial"; // Adjust type for habitability
     }
 }
 
@@ -387,17 +345,5 @@ function adjustForHabitableZonePlanet(planets, habitableZone) {
 export function isInHabitableZone(orbitRadius, habitableZone) {
     return orbitRadius >= habitableZone.innerBoundary && orbitRadius <= habitableZone.outerBoundary;
 }
-
-
-// Implement the functions: getRandomPlanetType, getOrbitRadius, getOrbitPeriod, getPlanetSize
-// These functions will generate specific characteristics for each planet
-
-
-// function selectTargetPlanet(solarSystem) {
-    // Select one planet from the solar system
-    // This could be random or based on specific criteria
-    // ...
-//    return targetPlanet;
-// }
 
 export { generateOrbit, generateParentStar, generateStarSizeAndMass, generateStarLuminosity, calculateHabitableZone, determinePlanetType, getPlanetAtmosphere };
