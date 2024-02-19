@@ -64,7 +64,7 @@ function calculateHabitableZone(luminosity) {
     // Constants for inner and outer boundaries in AU based on luminosity
     // These are simplified estimates; actual calculations can be more complex
     const innerBoundary = Math.sqrt(luminosity / 1.1);
-    const outerBoundary = Math.sqrt(luminosity) / 0.53;
+    const outerBoundary = Math.sqrt(luminosity / 0.53);
 
     return {
         innerBoundary: innerBoundary,
