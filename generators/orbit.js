@@ -57,7 +57,7 @@ function generateParentStar() {
 
 function calculateHabitableZone(luminosity) {
     const innerBoundary = Math.sqrt(luminosity / 1.1);
-    const outerBoundary = Math.sqrt(luminosity) / 0.53;
+    const outerBoundary = Math.sqrt(luminosity / 0.53);
 
     return {
         innerBoundary: innerBoundary,
