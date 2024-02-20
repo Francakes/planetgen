@@ -435,6 +435,20 @@ else {
 
 }
 
+function getColorForPlanetType(planetData) {
+    const colorMap = {
+        'Terrestrial': 0x228b22, // Forest Green
+        'Ice Giant': 0xadd8e6,   // Light Blue
+        'Gas Giant': 0xffa07a,   // Light Salmon (for an orange/tan look)
+        'Lava Planet': 0xff4500, // OrangeRed
+        'Ocean World': 0x1e90ff, // DodgerBlue
+        'Dwarf Planet': 0x404040, // Gray
+        // Add more types as needed
+    };
+
+    return colorMap[planetData] || 0xffffff; // Default to white if type not found
+}
+
 function addRingsToPlanet(planetMesh, planetData, index) {
     if (planetData.type === 'Gas Giant' || planetData.type === 'Ice Giant') {
         const { group: ringGroup, outerRadius } = createSegmentedRings(planetData.radius, planetData.type, planetData.axialTilt);
@@ -632,10 +646,12 @@ function animateMoons() {
 function visualizeOrbits() {
     universeData.solarSystem.forEach((planetData, index) => {
         const orbitRadius = planetData.orbitRadius * AU_TO_SCENE_SCALE;
-        const orbitGeometry = new THREE.RingGeometry(orbitRadius - 0.1, orbitRadius, 64);
+        const orbitGeometry = new THREE.RingGeometry(orbitRadius - 0.1, orbitRadius, 1024);
         const orbitMaterial = new THREE.LineBasicMaterial({ color: 0xDED38D, transparent: true, opacity: 0.05 });
         
         const orbitPath = new THREE.LineLoop(orbitGeometry, orbitMaterial);
+
+
         orbitPath.rotation.x = Math.PI / 2; 
         orbitPath.name = `orbitPath${index}`; 
         scene.add(orbitPath);
